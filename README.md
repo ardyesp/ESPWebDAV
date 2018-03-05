@@ -11,12 +11,14 @@ Supports the basic WebDav operations.
 
 ## Use:
 Compile and upload the program to an ESP8266 module. ESP12-E was used for development and testing.
-Connect the SPI bus lines to SD card.   
-ESP Module  SD Card   
-13  MOSI   
-12  MISO   
-14  SCK    
-15  CS   
+Connect the SPI bus lines to SD card.
+
+ESP Module|SD Card
+---|---
+GPIO13|MOSI   
+GPIO12|MISO   
+GPIO14|SCK    
+GPIO15|CS   
 
 The card should be formatted for Fat16 or Fat32
 
