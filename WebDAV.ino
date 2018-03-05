@@ -3,7 +3,7 @@
 #include <ESP8266WiFi.h>
 #include "ESPWebDAV.h"
 
-#define HOSTNAME	"Rigidbot"
+#define HOSTNAME	"ESPWebDAV"
 #define SERVER_PORT	80
 #define SD_CARD_CS_PIN	15
 
