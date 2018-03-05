@@ -3,6 +3,8 @@ A WiFi WebDAV server using ESP8266. Maintains the filesystem on an SD card.
 
 Supports the basic WebDav operations.
 
+The drive can be used as a networked drive to upload gcode to 3d printer's SD card. Additional interface will be required to avoid accessing SD card when printer is reading from it.
+
 
 ## Dependencies:
 1. [ESP8266 Arduino Core version 2.4](https://github.com/esp8266/Arduino)
