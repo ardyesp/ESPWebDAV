@@ -2,9 +2,9 @@
 #include <SdFat.h>
 
 // debugging
-//#define DBG_PRINT(...) 		{ Serial.print(__VA_ARGS__); }
-//#define DBG_PRINTLN(...) 	{ Serial.println(__VA_ARGS__); }
-// run
+// #define DBG_PRINT(...) 		{ Serial.print(__VA_ARGS__); }
+// #define DBG_PRINTLN(...) 	{ Serial.println(__VA_ARGS__); }
+// production
 #define DBG_PRINT(...) 		{ }
 #define DBG_PRINTLN(...) 	{ }
 
@@ -19,15 +19,18 @@ enum DepthType { DEPTH_NONE, DEPTH_CHILD, DEPTH_ALL };
 
 class ESPWebDAV	{
 public:
-	bool init(int chipSelectPin, int serverPort);
-	void handleClient();
+	bool init(int chipSelectPin, SPISettings spiSettings, int serverPort);
+	bool isClientWaiting();
+	void handleClient(String blank = "");
 	void rejectClient(String rejectMessage);
-
 	
 protected:
+	typedef void (ESPWebDAV::*THandlerFunction)(String);
+	
+	void processClient(THandlerFunction handler, String message);
 	void handleNotFound();
 	void handleReject(String rejectMessage);
-	void handleRequest();
+	void handleRequest(String blank);
 	void handleOptions(ResourceType resource);
 	void handleLock(ResourceType resource);
 	void handleUnlock(ResourceType resource);

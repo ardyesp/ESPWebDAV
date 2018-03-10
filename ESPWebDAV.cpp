@@ -14,14 +14,14 @@ const char *wdays[]  = {"Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"};
 
 
 // ------------------------
-bool ESPWebDAV::init(int chipSelectPin, int serverPort) {
+bool ESPWebDAV::init(int chipSelectPin, SPISettings spiSettings, int serverPort) {
 // ------------------------
 	// start the wifi server
 	server = new WiFiServer(serverPort);
 	server->begin();
 	
 	// initialize the SD card
-	return sd.begin(chipSelectPin, SPI_FULL_SPEED);
+	return sd.begin(chipSelectPin, spiSettings);
 }
 
 
@@ -48,14 +48,24 @@ void ESPWebDAV::handleReject(String rejectMessage)	{
 // ------------------------
 	DBG_PRINT("Rejecting request: "); DBG_PRINTLN(rejectMessage);
 
+	// handle options
+	if(method.equals("OPTIONS"))
+		return handleOptions(RESOURCE_NONE);
+	
 	// handle properties
-	if(method.equals("PROPFIND") && depthHeader.equals("1"))	{
+	if(method.equals("PROPFIND"))	{
 		sendHeader("Allow", "PROPFIND,OPTIONS,DELETE,COPY,MOVE");
 		setContentLength(CONTENT_LENGTH_UNKNOWN);
 		send("207 Multi-Status", "application/xml;charset=utf-8", "");
-		sendContent(F("<?xml version=\"1.0\" encoding=\"utf-8\"?><D:multistatus xmlns:D=\"DAV:\"><D:response><D:href>/</D:href><D:propstat><D:status>HTTP/1.1 200 OK</D:status><D:prop><D:getlastmodified>Fri, 30 Nov 1979 00:00:00 GMT</D:getlastmodified><D:getetag>\"3333333333333333333333333333333333333333\"</D:getetag><D:resourcetype><D:collection/></D:resourcetype></D:prop></D:propstat></D:response><D:response><D:href>/"));
-		sendContent(rejectMessage);
-		sendContent(F("</D:href><D:propstat><D:status>HTTP/1.1 200 OK</D:status><D:prop><D:getlastmodified>Fri, 01 Apr 2016 16:07:40 GMT</D:getlastmodified><D:getetag>\"2222222222222222222222222222222222222222\"</D:getetag><D:resourcetype/><D:getcontentlength>0</D:getcontentlength><D:getcontenttype>application/octet-stream</D:getcontenttype></D:prop></D:propstat></D:response></D:multistatus>"));
+		sendContent(F("<?xml version=\"1.0\" encoding=\"utf-8\"?><D:multistatus xmlns:D=\"DAV:\"><D:response><D:href>/</D:href><D:propstat><D:status>HTTP/1.1 200 OK</D:status><D:prop><D:getlastmodified>Fri, 30 Nov 1979 00:00:00 GMT</D:getlastmodified><D:getetag>\"3333333333333333333333333333333333333333\"</D:getetag><D:resourcetype><D:collection/></D:resourcetype></D:prop></D:propstat></D:response>"));
+		
+		if(depthHeader.equals("1"))	{
+			sendContent(F("<D:response><D:href>/"));
+			sendContent(rejectMessage);
+			sendContent(F("</D:href><D:propstat><D:status>HTTP/1.1 200 OK</D:status><D:prop><D:getlastmodified>Fri, 01 Apr 2016 16:07:40 GMT</D:getlastmodified><D:getetag>\"2222222222222222222222222222222222222222\"</D:getetag><D:resourcetype/><D:getcontentlength>0</D:getcontentlength><D:getcontenttype>application/octet-stream</D:getcontenttype></D:prop></D:propstat></D:response>"));
+		}
+		
+		sendContent(F("</D:multistatus>"));
 		return;
 	}
 	else
@@ -71,7 +81,7 @@ void ESPWebDAV::handleReject(String rejectMessage)	{
 // Test PUT a file: curl -v -T c.txt -H "Expect:" http://Rigidbot/c.txt
 // C:\Users\gsbal>curl -v -X LOCK http://Rigidbot/EMA_CPP_TRCC_Tutorial/Consumer.cpp -d "<?xml version=\"1.0\" encoding=\"utf-8\" ?><D:lockinfo xmlns:D=\"DAV:\"><D:lockscope><D:exclusive/></D:lockscope><D:locktype><D:write/></D:locktype><D:owner><D:href>CARBON2\gsbal</D:href></D:owner></D:lockinfo>"
 // ------------------------
-void ESPWebDAV::handleRequest()	{
+void ESPWebDAV::handleRequest(String blank)	{
 // ------------------------
 	ResourceType resource = RESOURCE_NONE;
 

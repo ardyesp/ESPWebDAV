@@ -77,52 +77,34 @@ String ESPWebDAV::urlToUri(String url)	{
 
 
 
-
-
 // ------------------------
-void ESPWebDAV::handleClient() {
+bool ESPWebDAV::isClientWaiting() {
 // ------------------------
-	// Check if a client has connected
-	client = server->available();
-	if(!client)
-		return;
-
-	// Wait until the client sends some data
-	while(!client.available())
-		delay(1);
-	
-	// reset all variables
-	_chunked = false;
-	_responseHeaders = String();
-	_contentLength = CONTENT_LENGTH_NOT_SET;
-	method = String();
-	uri = String();
-	contentLengthHeader = String();
-	depthHeader = String();
-	hostHeader = String();
-	destinationHeader = String();
-
-	// extract uri, headers etc
-	if(parseRequest())
-		// invoke the handler for all methods
-		handleRequest();
-		
-	// finalize the response
-	if(_chunked)
-		sendContent("");
-
-	// send all data before closing connection
-	client.flush();
-	// close the connection
-	client.stop();
+	return server->hasClient();
 }
 
+
+
+
+// ------------------------
+void ESPWebDAV::handleClient(String blank) {
+// ------------------------
+	processClient(&ESPWebDAV::handleRequest, blank);
+}
 
 
 
 // ------------------------
 void ESPWebDAV::rejectClient(String rejectMessage) {
 // ------------------------
+	processClient(&ESPWebDAV::handleReject, rejectMessage);
+}
+
+
+
+// ------------------------
+void ESPWebDAV::processClient(THandlerFunction handler, String message) {
+// ------------------------
 	// Check if a client has connected
 	client = server->available();
 	if(!client)
@@ -145,8 +127,8 @@ void ESPWebDAV::rejectClient(String rejectMessage) {
 
 	// extract uri, headers etc
 	if(parseRequest())
-		// reject requests with a status message
-		handleReject(rejectMessage);
+		// invoke the handler
+		(this->*handler)(message);
 		
 	// finalize the response
 	if(_chunked)
@@ -157,6 +139,7 @@ void ESPWebDAV::rejectClient(String rejectMessage) {
 	// close the connection
 	client.stop();
 }
+
 
 
 

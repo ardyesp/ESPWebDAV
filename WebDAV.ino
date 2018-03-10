@@ -1,11 +1,15 @@
-// Using the WebDAV server
+/* Using the WebDAV server
+	From windows - 
+		Run: \\HOSTNAME\DavWWWRoot
+		or Map Network Drive -> Connect to a Website
+*/
 
 #include <ESP8266WiFi.h>
 #include "ESPWebDAV.h"
 
 #define HOSTNAME	"ESPWebDAV"
 #define SERVER_PORT	80
-#define SD_CARD_CS_PIN	15
+#define SD_CS		15
 
 
 const char *ssid = "ssid";
@@ -40,7 +44,7 @@ void setup() {
 	Serial.print ("Mode: "); Serial.println(WiFi.getPhyMode());
 	
 	// start the SD DAV server
-	if(!dav.init(SD_CARD_CS_PIN, SERVER_PORT))		{
+	if(!dav.init(SD_CS, SPI_FULL_SPEED, SERVER_PORT))		{
 		statusMessage = "Failed to initialize SD Card";
 		Serial.print("ERROR: "); Serial.println(statusMessage);
 		initFailed = true;
@@ -54,11 +58,13 @@ void setup() {
 // ------------------------
 void loop() {
 // ------------------------
-	// call handle if server was initialized properly
-	if(!initFailed)
+	if(dav.isClientWaiting())	{
+		if(initFailed)
+			return dav.rejectClient(statusMessage);
+
+		// call handle if server was initialized properly
 		dav.handleClient();
-	else
-		dav.rejectClient(statusMessage);
+	}
 }
 
 
