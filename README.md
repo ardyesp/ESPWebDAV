@@ -1,10 +1,18 @@
 # ESPWebDAV
 A WiFi WebDAV server using ESP8266. Maintains the filesystem on an SD card.
 
-Supports the basic WebDav operations.
+Supports the basic WebDav operations - *PROPFIND*, *GET*, *PUT*, *DELETE*, *MKCOL*, *MOVE* etc.
 
-The drive can be used as a networked drive to upload gcode to 3d printer's SD card. Additional interface will be required to avoid accessing SD card when printer is reading from it.
+Once the WebDAV server is running on the ESP8266, a WebDAV client like Windows can access the filesystem on the SD card just like a cloud drive. The drive can also be mounted like a networked drive, and allows copying/pasting/deleting files on SD card remotely.
 
+### 3D Printer
+
+I am using this setup as a networked drive for 3D Printer running Marlin. Following circuit with ESP8266 and MicroSD adapter is fabricated on a PCB. A full size SD card adapter is glued to one end and provides access to all SPI data lines. ESP8266 code avoids accessing micro SD card, when Marlin is reading/writing to it (detected using Chip Select line).
+
+GCode can be directly uploaded from the slicer to this remote drive, thereby simpliying the workflow. 
+
+
+![Printer Hookup Diagram](PrinterHookup.png)
 
 ## Dependencies:
 1. [ESP8266 Arduino Core version 2.4](https://github.com/esp8266/Arduino)
