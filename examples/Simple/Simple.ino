@@ -5,15 +5,15 @@
 */
 
 #include <ESP8266WiFi.h>
-#include "ESPWebDAV.h"
+#include <ESPWebDAV.h>
 
 #define HOSTNAME	"ESPWebDAV"
 #define SERVER_PORT	80
 #define SD_CS		15
 
 
-const char *ssid = "ssid";
-const char *password = "passwd";
+const char *ssid = 		"ssid";
+const char *password = 	"passwd";
 
 ESPWebDAV dav;
 String statusMessage;

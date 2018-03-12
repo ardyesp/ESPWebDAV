@@ -9,7 +9,7 @@ Once the WebDAV server is running on the ESP8266, a WebDAV client like Windows c
 
 I am using this setup as a networked drive for 3D Printer running Marlin. Following circuit with ESP8266 and MicroSD adapter is fabricated on a PCB. A full size SD card adapter is glued to one end and provides access to all SPI data lines. ESP8266 code avoids accessing micro SD card, when Marlin is reading/writing to it (detected using Chip Select line).
 
-GCode can be directly uploaded from the slicer to this remote drive, thereby simpliying the workflow. 
+GCode can be directly uploaded from the slicer (Cura) to this remote drive, thereby simplifying the workflow. 
 
 
 ![Printer Hookup Diagram](PrinterHookup.png)
@@ -33,3 +33,15 @@ GPIO15|CS
 The card should be formatted for Fat16 or Fat32
 
 To access the drive from Windows, type ```\\esp_hostname_or_ip\DavWWWRoot``` at the Run prompt, or use Map Network Drive menu in Windows Explorer.
+
+## References
+Marlin Firmware - [http://marlinfw.org/](http://marlinfw.org/)   
+
+Cura Slicer - [https://ultimaker.com/en/products/ultimaker-cura-software](https://ultimaker.com/en/products/ultimaker-cura-software)   
+
+3D Printer LCD and SD Card Interface - [http://reprap.org/wiki/RepRapDiscount_Full_Graphic_Smart_Controller](http://reprap.org/wiki/RepRapDiscount_Full_Graphic_Smart_Controller)   
+
+LCD Schematics - [http://reprap.org/mediawiki/images/7/79/LCD_connect_SCHDOC.pdf](http://reprap.org/mediawiki/images/7/79/LCD_connect_SCHDOC.pdf)   
+
+
+
