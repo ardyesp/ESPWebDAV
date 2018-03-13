@@ -1,5 +1,5 @@
 # ESPWebDAV
-A WiFi WebDAV server using ESP8266. Maintains the filesystem on an SD card.
+A WiFi WebDAV server using ESP8266 SoC. Maintains the filesystem on an SD card.
 
 Supports the basic WebDav operations - *PROPFIND*, *GET*, *PUT*, *DELETE*, *MKCOL*, *MOVE* etc.
 
