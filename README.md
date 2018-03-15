@@ -1,4 +1,4 @@
-# ESPWebDAV
+# ESPWebDAV and 3D Printer filesystem
 A WiFi WebDAV server using ESP8266 SoC. Maintains the filesystem on an SD card.
 
 Supports the basic WebDav operations - *PROPFIND*, *GET*, *PUT*, *DELETE*, *MKCOL*, *MOVE* etc.
