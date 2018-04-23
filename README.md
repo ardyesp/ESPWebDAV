@@ -12,7 +12,7 @@ I am using this setup as a networked drive for 3D Printer running Marlin. Follow
 GCode can be directly uploaded from the slicer (Cura) to this remote drive, thereby simplifying the workflow. 
 
 
-![Printer Hookup Diagram](PrinterHookup.jpg)
+![Printer Hookup Diagram](PrinterHookup2.jpg)
 
 ## Dependencies:
 1. [ESP8266 Arduino Core version 2.4](https://github.com/esp8266/Arduino)
