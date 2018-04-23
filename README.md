@@ -28,7 +28,8 @@ ESP Module|SD Card
 GPIO13|MOSI   
 GPIO12|MISO   
 GPIO14|SCK    
-GPIO15|CS   
+GPIO4|CS   
+GPIO5|CS Sense   
 
 The card should be formatted for Fat16 or Fat32
 
