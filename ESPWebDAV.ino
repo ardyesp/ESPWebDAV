@@ -23,12 +23,20 @@ void setup() {
 	// ----- WIFI -------
   if(config.load() == 1) { // Connected before
     if(!network.start()) {
-      SERIAL_ECHOLN("");
       SERIAL_ECHOLN("Connect fail, please set the wifi config and connect again");
+      SERIAL_ECHOLN("- M50: Set the wifi ssid , 'M50 ssid-name'");
+      SERIAL_ECHOLN("- M51: Set the wifi password , 'M51 password'");
+      SERIAL_ECHOLN("- M52: Start to connect the wifi");
+      SERIAL_ECHOLN("- M53: Check the connection status");
     }
   }
   else {
-    SERIAL_ECHOLN("Please set the wifi ssid with M50 and password with M51 , and start connection with M52");
+    SERIAL_ECHOLN("Welcome to FYSETC: www.fysetc.com");
+    SERIAL_ECHOLN("Please set the wifi config first");
+    SERIAL_ECHOLN("- M50: Set the wifi ssid , 'M50 ssid-name'");
+    SERIAL_ECHOLN("- M51: Set the wifi password , 'M51 password'");
+    SERIAL_ECHOLN("- M52: Start to connect the wifi");
+    SERIAL_ECHOLN("- M53: Check the connection status");
   }
 }
 

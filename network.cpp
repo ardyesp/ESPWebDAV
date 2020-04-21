@@ -37,8 +37,10 @@ bool Network::start() {
     //blink();
     SERIAL_ECHO(".");
     timeout++;
-    if(timeout++ > WIFI_CONNECT_TIMEOUT/100)
+    if(timeout++ > WIFI_CONNECT_TIMEOUT/100) {
+      SERIAL_ECHOLN("");
       return false;
+    }
     else
       delay(100);
   }
@@ -79,7 +81,7 @@ void Network::startDAVServer() {
   }
   
   relenquishBusControl();
-  DBG_PRINTLN("WebDAV server started");
+  DBG_PRINTLN("FYSETC WebDAV server started");
 }
 
 bool Network::isConnected() {
