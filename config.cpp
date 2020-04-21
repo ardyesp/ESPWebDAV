@@ -48,4 +48,18 @@ void Config::save(const char*ssid,const char*password) {
   EEPROM.commit();
 }
 
+void Config::save() {
+  if(data.ssid == NULL || data.psw == NULL)
+    return;
+
+  EEPROM.begin(EEPROM_SIZE);
+  data.flag = 1;
+  uint8_t *p = (uint8_t*)(&data);
+  for (int i = 0; i < sizeof(data); i++)
+  {
+    EEPROM.write(i, *(p + i));
+  }
+  EEPROM.commit();
+}
+
 Config config;

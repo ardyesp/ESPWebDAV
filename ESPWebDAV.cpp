@@ -566,3 +566,4 @@ void ESPWebDAV::handleDelete(ResourceType resource)	{
 	send("200 OK", NULL, "");
 }
 
+ESPWebDAV dav;

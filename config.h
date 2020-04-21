@@ -24,6 +24,7 @@ public:
   char* password();
   void password(char* password);
   void save(const char*ssid,const char*password);
+  void save();
 	
 protected:
   CONFIG_TYPE data;

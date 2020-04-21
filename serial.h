@@ -28,6 +28,8 @@
 
 #define MYSERIAL0 Serial
 
+#define SERIAL_INIT(...)		{ Serial.begin(__VA_ARGS__); }
+
 extern const char echomagic[] PROGMEM;
 extern const char errormagic[] PROGMEM;
 

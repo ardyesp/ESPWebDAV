@@ -10,6 +10,7 @@
 
 //#include "enum.h"
 #include <stdint.h>
+#include <stdlib.h>
 #include "macros.h"
 
 #define strtof strtod
