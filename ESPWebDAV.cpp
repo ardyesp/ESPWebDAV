@@ -330,12 +330,12 @@ void ESPWebDAV::handleProp(ResourceType resource)	{
 // String fullResPath = "http://" + hostHeader + uri;
 	String fullResPath = uri;
 
-	if(recursing)
+	if(recursing) {
 		if(fullResPath.endsWith("/"))
 			fullResPath += String(buf);
 		else
 			fullResPath += "/" + String(buf);
-
+	};
 	// get file modified time
 #ifdef USE_SDFAT
 	dir_t dir;
