@@ -13,7 +13,11 @@
 #else
 #include <SD.h>
 #endif
+#ifdef ESP32
+#include <mbedtls/sha256.h>
+#else
 #include <Hash.h>
+#endif //ESP32
 #include <time.h>
 #include "ESPWebDAV.h"
 
@@ -21,6 +25,12 @@
 const char *months[]  = {"Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"};
 const char *wdays[]  = {"Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"};
 
+String sha256(String input) {
+	//TODO: Actually do something useful
+	//unsigned char sha256[32];
+	//mbedtls_sha256_ret((const unsigned char*)input.c_str(), sizeof(input.c_str()), sha256, 0);
+	return input;
+}
 
 // ------------------------
 #ifdef USE_SDFAT
@@ -360,7 +370,11 @@ void ESPWebDAV::handleProp(ResourceType resource)	{
 	sendContent(fileTimeStamp);
 	sendContent(F("</D:getlastmodified><D:getetag>"));
 	// append unique tag generated from full path
+#ifdef ESP32
+	sendContent("\"" + sha256(fullResPath + fileTimeStamp) + "\"");
+#else
 	sendContent("\"" + sha1(fullResPath + fileTimeStamp) + "\"");
+#endif
 	sendContent(F("</D:getetag>"));
 
 #ifdef USE_SDFAT
