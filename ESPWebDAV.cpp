@@ -7,7 +7,12 @@
 #include <ESP8266WiFi.h>
 #endif
 #include <SPI.h>
+
+#ifdef USE_SDFAT
 #include <SdFat.h>
+#else
+#include <SD.h>
+#endif
 #include <Hash.h>
 #include <time.h>
 #include "ESPWebDAV.h"
@@ -18,14 +23,22 @@ const char *wdays[]  = {"Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"};
 
 
 // ------------------------
+#ifdef USE_SDFAT
 bool ESPWebDAV::init(int chipSelectPin, SPISettings spiSettings, int serverPort) {
+#else
+bool ESPWebDAV::init(int serverPort) {
+#endif
 // ------------------------
 	// start the wifi server
 	server = new WiFiServer(serverPort);
 	server->begin();
-	
+
+#ifdef USE_SDFAT
 	// initialize the SD card
 	return sd.begin(chipSelectPin, spiSettings);
+#else
+	return true;
+#endif
 }
 
 
@@ -90,11 +103,23 @@ void ESPWebDAV::handleRequest(String blank)	{
 	ResourceType resource = RESOURCE_NONE;
 
 	// does uri refer to a file or directory or a null?
+#ifdef USE_SDFAT
 	FatFile tFile;
 	if(tFile.open(sd.vwd(), uri.c_str(), O_READ))	{
 		resource = tFile.isDir() ? RESOURCE_DIR : RESOURCE_FILE;
 		tFile.close();
 	}
+#else
+	File tFile;
+	if (uri.length() > 1 && uri.endsWith("/")) {
+		tFile = sd.open(uri.substring(0,uri.length()-1));
+	} else {
+		tFile = sd.open(uri.c_str());
+	}
+	if (tFile)
+		resource = tFile.isDirectory() ? RESOURCE_DIR : RESOURCE_FILE;
+	tFile.close();
+#endif
 
 	DBG_PRINT("\r\nm: "); DBG_PRINT(method);
 	DBG_PRINT(" r: "); DBG_PRINT(resource);
@@ -243,14 +268,29 @@ void ESPWebDAV::handleProp(ResourceType resource)	{
 	sendContent(F("<D:multistatus xmlns:D=\"DAV:\">"));
 
 	// open this resource
+#ifdef USE_SDFAT
 	SdFile baseFile;
 	baseFile.open(uri.c_str(), O_READ);
+#else
+	File baseFile;
+	if (uri.length() > 1 && uri.endsWith("/")) {
+		DBG_PRINT("Open shortened uri: "); DBG_PRINT(uri.substring(0,uri.length()-1));
+		baseFile = sd.open(uri.substring(0,uri.length()-1));
+	} else {
+		DBG_PRINT("Open uri: "); DBG_PRINT(uri.substring(0,uri.length()-1));
+		baseFile = sd.open(uri.c_str());
+	}
+#endif
 	sendPropResponse(false, &baseFile);
 
 	if((resource == RESOURCE_DIR) && (depth == DEPTH_CHILD))	{
 		// append children information to message
+#ifdef USE_SDFAT
 		SdFile childFile;
 		while(childFile.openNext(&baseFile, O_READ)) {
+#else
+		while(File childFile = baseFile.openNextFile()) {
+#endif
 			yield();
 			sendPropResponse(true, &childFile);
 			childFile.close();
@@ -264,11 +304,19 @@ void ESPWebDAV::handleProp(ResourceType resource)	{
 
 
 // ------------------------
-void ESPWebDAV::sendPropResponse(boolean recursing, FatFile *curFile)	{
+#ifdef USE_SDFAT
+	void ESPWebDAV::sendPropResponse(boolean recursing, FatFile *curFile) {
+#else
+	void ESPWebDAV::sendPropResponse(boolean recursing, File *curFile) {
+#endif
 // ------------------------
+#ifdef USE_SDFAT
 	char buf[255];
 	curFile->getName(buf, sizeof(buf));
-
+#else
+	const char* buf = curFile->name()+1;
+#endif
+	DBG_PRINT("SendPropResponse for "); DBG_PRINTLN(buf);
 // String fullResPath = "http://" + hostHeader + uri;
 	String fullResPath = uri;
 
@@ -279,6 +327,7 @@ void ESPWebDAV::sendPropResponse(boolean recursing, FatFile *curFile)	{
 			fullResPath += "/" + String(buf);
 
 	// get file modified time
+#ifdef USE_SDFAT
 	dir_t dir;
 	curFile->dirEntry(&dir);
 
@@ -291,11 +340,15 @@ void ESPWebDAV::sendPropResponse(boolean recursing, FatFile *curFile)	{
 	tmStr.tm_mon = FAT_MONTH(dir.lastWriteDate) - 1;
 	tmStr.tm_mday = FAT_DAY(dir.lastWriteDate);
 	time_t t2t = mktime(&tmStr);
+#else
+	time_t t2t = curFile->getLastWrite();
+#endif
 	tm *gTm = gmtime(&t2t);
 
 	// Tue, 13 Oct 2015 17:07:35 GMT
-	sprintf(buf, "%s, %02d %s %04d %02d:%02d:%02d GMT", wdays[gTm->tm_wday], gTm->tm_mday, months[gTm->tm_mon], gTm->tm_year + 1900, gTm->tm_hour, gTm->tm_min, gTm->tm_sec);
-	String fileTimeStamp = String(buf);
+	char tsBuf[255];
+	sprintf(tsBuf, "%s, %02d %s %04d %02d:%02d:%02d GMT", wdays[gTm->tm_wday], gTm->tm_mday, months[gTm->tm_mon], gTm->tm_year + 1900, gTm->tm_hour, gTm->tm_min, gTm->tm_sec);
+	String fileTimeStamp = String(tsBuf);
 
 
 	// send the XML information about thyself to client
@@ -310,12 +363,20 @@ void ESPWebDAV::sendPropResponse(boolean recursing, FatFile *curFile)	{
 	sendContent("\"" + sha1(fullResPath + fileTimeStamp) + "\"");
 	sendContent(F("</D:getetag>"));
 
+#ifdef USE_SDFAT
 	if(curFile->isDir())
+#else
+	if(curFile->isDirectory())
+#endif
 		sendContent(F("<D:resourcetype><D:collection/></D:resourcetype>"));
 	else	{
 		sendContent(F("<D:resourcetype/><D:getcontentlength>"));
 		// append the file size
+#ifdef USE_SDFAT
 		sendContent(String(curFile->fileSize()));
+#else
+		sendContent(String(curFile->size()));
+#endif
 		sendContent(F("</D:getcontentlength><D:getcontenttype>"));
 		// append correct file mime type
 		sendContent(getMimeType(fullResPath));
@@ -336,13 +397,21 @@ void ESPWebDAV::handleGet(ResourceType resource, bool isGet)	{
 	if(resource != RESOURCE_FILE)
 		return handleNotFound();
 
-	SdFile rFile;
 	long tStart = millis();
 	uint8_t buf[1460];
+#ifdef USE_SDFAT
+	SdFile rFile;
 	rFile.open(uri.c_str(), O_READ);
+#else
+	File rFile = sd.open(uri.c_str());
+#endif
 
 	sendHeader("Allow", "PROPFIND,OPTIONS,DELETE,COPY,MOVE,HEAD,POST,PUT,GET");
+#ifdef USE_SDFAT
 	size_t fileSize = rFile.fileSize();
+#else
+	size_t fileSize = rFile.size();
+#endif
 	setContentLength(fileSize);
 	String contentType = getMimeType(uri);
 	if(uri.endsWith(".gz") && contentType != "application/x-gzip" && contentType != "application/octet-stream")
@@ -378,15 +447,18 @@ void ESPWebDAV::handlePut(ResourceType resource)	{
 	if(resource == RESOURCE_DIR)
 		return handleNotFound();
 
-	SdFile nFile;
 	sendHeader("Allow", "PROPFIND,OPTIONS,DELETE,COPY,MOVE,HEAD,POST,PUT,GET");
+#ifdef USE_SDFAT
+	SdFile nFile;
 
 	// if file does not exist, create it
 	if(resource == RESOURCE_NONE)	{
 		if(!nFile.open(uri.c_str(), O_CREAT | O_WRITE))
 			return handleWriteError("Unable to create a new file", &nFile);
 	}
-
+#else
+	File nFile = sd.open(uri.c_str(), FILE_WRITE);
+#endif
 	// file is created/open for writing at this point
 	DBG_PRINT(uri); DBG_PRINTLN(" - ready for data");
 	// did server send any data in put
@@ -398,7 +470,7 @@ void ESPWebDAV::handlePut(ResourceType resource)	{
 		uint8_t buf[WRITE_BLOCK_CONST];
 		long tStart = millis();
 		size_t numRemaining = contentLen;
-
+#ifdef USE_SDFAT
 		// high speed raw write implementation
 		// close any previous file
 		nFile.close();
@@ -418,7 +490,7 @@ void ESPWebDAV::handlePut(ResourceType resource)	{
 
 		if (!sd.card()->writeStart(bgnBlock, contBlocks))
 			return handleWriteError("Unable to start writing contiguous range", &nFile);
-
+#endif
 		// read data from stream and write to the file
 		while(numRemaining > 0)	{
 			size_t numToRead = (numRemaining > WRITE_BLOCK_CONST) ? WRITE_BLOCK_CONST : numRemaining;
@@ -427,24 +499,29 @@ void ESPWebDAV::handlePut(ResourceType resource)	{
 				break;
 
 			// store whole buffer into file regardless of numRead
+#ifdef USE_SDFAT
 			if (!sd.card()->writeData(buf))
+#else
+			if (!nFile.write(buf, numRead))
+#endif
 				return handleWriteError("Write data failed", &nFile);
 
 			// reduce the number outstanding
 			numRemaining -= numRead;
 		}
 
+#ifdef USE_SDFAT
 		// stop writing operation
 		if (!sd.card()->writeStop())
 			return handleWriteError("Unable to stop writing contiguous range", &nFile);
 
-		// detect timeout condition
-		if(numRemaining)
-			return handleWriteError("Timed out waiting for data", &nFile);
-
 		// truncate the file to right length
 		if(!nFile.truncate(contentLen))
 			return handleWriteError("Unable to truncate the file", &nFile);
+#endif
+		// detect timeout condition
+		if(numRemaining)
+			return handleWriteError("Timed out waiting for data", &nFile);
 
 		DBG_PRINT("File "); DBG_PRINT(contentLen - numRemaining); DBG_PRINT(" bytes stored in: "); DBG_PRINT((millis() - tStart)/1000); DBG_PRINTLN(" sec");
 	}
@@ -461,7 +538,11 @@ void ESPWebDAV::handlePut(ResourceType resource)	{
 
 
 // ------------------------
-void ESPWebDAV::handleWriteError(String message, FatFile *wFile)	{
+#ifdef USE_SDFAT
+void ESPWebDAV::handleWriteError(String message, FatFile *wFile) {
+#else
+void ESPWebDAV::handleWriteError(String message, File *wFile) {
+#endif
 // ------------------------
 	// close this file
 	wFile->close();
@@ -483,7 +564,11 @@ void ESPWebDAV::handleDirectoryCreate(ResourceType resource)	{
 		return handleNotFound();
 	
 	// create directory
+#ifdef USE_SDFAT
 	if (!sd.mkdir(uri.c_str(), true)) {
+#else
+	if (!sd.mkdir(uri.substring(0,uri.length()-1))) {
+#endif
 		// send error
 		send("500 Internal Server Error", "text/plain", "Unable to create directory");
 		DBG_PRINTLN("Unable to create directory");
