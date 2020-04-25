@@ -505,7 +505,7 @@ void ESPWebDAV::handleMove(ResourceType resource)	{
 	if(destinationHeader.length() == 0)
 		return handleNotFound();
 	
-	String dest = urlToUri(destinationHeader);
+	String dest = urlDecode(urlToUri(destinationHeader));
 		
 	DBG_PRINT("Move destination: "); DBG_PRINTLN(dest);
 
