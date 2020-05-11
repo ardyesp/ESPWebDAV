@@ -32,8 +32,8 @@
 #define CS_SENSE	5
 
 
-const char *ssid = 		"ssid";
-const char *password = 	"password";
+const char *ssid = 		"MySweetHome";
+const char *password = 	"homeswapass";
 
 ESPWebDAV dav;
 String statusMessage;
@@ -181,6 +181,3 @@ void errorBlink()	{
 		delay(50);
 	}
 }
-
-
-

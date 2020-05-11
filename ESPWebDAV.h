@@ -1,5 +1,7 @@
 #include <ESP8266WiFi.h>
-#include <SdFat.h>
+#include "SdFat.h"
+
+using namespace sdfat;
 
 // debugging
 // #define DBG_PRINT(...) 		{ Serial.print(__VA_ARGS__); }
