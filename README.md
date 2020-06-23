@@ -17,23 +17,34 @@ GCode can be directly uploaded from the slicer (Cura) to this remote drive, ther
 ## Dependencies:
 1. [ESP8266 Arduino Core version 2.4](https://github.com/esp8266/Arduino)
 2. [SdFat library](https://github.com/greiman/SdFat)
-  
+
 
 ## Use:
-Compile and upload the program to an ESP8266 module. ESP12-E was used for development and testing.
-Connect the SPI bus lines to SD card.
+### Compile and upload
 
-ESP Module|SD Card
----|---
-GPIO13|MOSI   
-GPIO12|MISO   
-GPIO14|SCK    
-GPIO4|CS   
-GPIO5|CS Sense   
+Compile and upload the program to an ESP8266 module. 
 
-The card should be formatted for Fat16 or Fat32
+### Config
 
-To access the drive from Windows, type ```\\esp_hostname_or_ip\DavWWWRoot``` at the Run prompt, or use Map Network Drive menu in Windows Explorer.
+Turn the option button to ```USB2UART``` and connect the module to your computer with USB cable. And use the following command to set or check the network status , you can also see our video [here](https://www.youtube.com/watch?v=YAFAK-jPcOs).
+
+    M50: Set the wifi ssid , 'M50 ssid-name'
+    M51: Set the wifi password , 'M51 password'
+    M52: Start to connect the wifi
+    M53: Check the connection status
+### Access
+
+#### windows
+
+To access the drive from Windows, type ```\\ip\DavWWWRoot``` at the Run prompt, this will show in serial output as our [video](https://www.youtube.com/watch?v=YAFAK-jPcOs) shows.
+
+Or use Map Network Drive menu in Windows Explorer.
+
+##### MAC
+
+Just need to use  ```http://192.168.0.x``` in access network drive option
+
+*note: The card should be formatted for Fat16 or Fat32*
 
 ## References
 Marlin Firmware - [http://marlinfw.org/](http://marlinfw.org/)   
