@@ -22,11 +22,61 @@ GCode can be directly uploaded from the slicer (Cura) to this remote drive, ther
 ## Use:
 ### Compile and upload
 
-Compile and upload the program to an ESP8266 module. 
+#### Compile
+
+If you don't want to update the firmware. You don't need to do this. Compile and upload the program to an ESP8266 module. 
+
+- Open the project
+
+  Download this project and open it with [arduino](https://www.arduino.cc/) software.
+
+- Add board manager link
+
+  Add boards manager link: `https://arduino.esp8266.com/stable/package_esp8266com_index.json` to File->Preferences board manager, Documentation: https://arduino-esp8266.readthedocs.io/en/2.7.1/ 
+
+- Select board
+
+  Select Tools->boards->Generic ESP8285 Module.
+
+- Click the Arduino compile button
+
+#### Upload
+
+1. Pulg in the USB cable to your computer.
+2. Press and hold the module FLSH 
+3. Connect the USB cable to the module
+4. Release the module FLSH button
+5. Click the Arduino upload button
 
 ### Config
 
-Turn the option button to ```USB2UART``` and connect the module to your computer with USB cable. And use the following command to set or check the network status , you can also see our video [here](https://www.youtube.com/watch?v=YAFAK-jPcOs).
+First you can see our video [here](https://www.youtube.com/watch?v=YAFAK-jPcOs). You have two ways to config the module.
+
+*note: The card should be formatted for Fat16 or Fat32*
+
+#### Option 1: INI file
+
+You can edit the example ```SETUP.INI``` file in ```ini``` folder, change the SSID and PASSWORD value. And then copy ```SETUP.INI``` file to your root SD card. Then insert it to the module. 
+
+1. Turn the module option button to ```USB2UART``` 
+2. Open a COM software in your computer
+3. Connect the module to your computer with USB cable
+4. Open the software COM port
+
+you can see the module IP and other information.
+
+*note: if you miss the serial output, you can click the ```RST``` button in the module.*
+
+#### Option 2 : Command
+
+Insert your sdcard to the module.
+
+1. Turn the module option button to ```USB2UART``` 
+2. Open a COM software in your computer
+3. Connect the module to your computer with USB cable
+4. Open the software COM port
+
+And use the following command to connect the network or check the network status
 
     M50: Set the wifi ssid , 'M50 ssid-name'
     M51: Set the wifi password , 'M51 password'
@@ -40,11 +90,9 @@ To access the drive from Windows, type ```\\ip\DavWWWRoot``` at the Run prompt, 
 
 Or use Map Network Drive menu in Windows Explorer.
 
-##### MAC
+#### MAC
 
 Just need to use  ```http://192.168.0.x``` in access network drive option
-
-*note: The card should be formatted for Fat16 or Fat32*
 
 ## References
 Marlin Firmware - [http://marlinfw.org/](http://marlinfw.org/)   
