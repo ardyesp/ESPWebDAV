@@ -121,7 +121,7 @@ void Gcode::gcode_M51() {
  */
 void Gcode::gcode_M52() {
   if(!network.start()) {
-    SERIAL_ECHOLN("Connect fail, please set the wifi config and connect again");
+    SERIAL_ECHOLN("Connect fail, please check your INI file or set the wifi config and connect again");
     SERIAL_ECHOLN("- M50: Set the wifi ssid , 'M50 ssid-name'");
     SERIAL_ECHOLN("- M51: Set the wifi password , 'M51 password'");
     SERIAL_ECHOLN("- M52: Start to connect the wifi");

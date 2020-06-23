@@ -1,24 +1,10 @@
 #include "network.h"
 #include "serial.h"
 #include "config.h"
+#include "pins.h"
 #include "ESP8266WiFi.h"
 #include "ESPWebDAV.h"
-
-volatile long Network::_spiBlockoutTime = 0;
-bool Network::_weHaveBus = false;
-
-void Network::setup() {
-  // ----- GPIO -------
-	// Detect when other master uses SPI bus
-	pinMode(CS_SENSE, INPUT);
-	attachInterrupt(CS_SENSE, []() {
-		if(!_weHaveBus)
-	    _spiBlockoutTime = millis() + SPI_BLOCKOUT_PERIOD;
-	}, FALLING);
-
-	// wait for other master to assert SPI bus first
-	delay(SPI_BLOCKOUT_PERIOD);
-}
+#include "sdControl.h"
 
 bool Network::start() {
   wifiConnected = false;
@@ -56,18 +42,17 @@ bool Network::start() {
 
   config.save();
 
-  startDAVServer();
+  SERIAL_ECHOLN("Going to start DAV server");
+  if(startDAVServer() < 0) return false;
 
   return true;
 }
 
-void Network::startDAVServer() {
-  // Check to see if other master is using the SPI bus
-  while(millis() < _spiBlockoutTime) {
-    //blink();
+int Network::startDAVServer() {
+  if(!sdcontrol.canWeTakeBus()) {
+    return -1;
   }
-  
-  takeBusControl();
+  sdcontrol.takeBusControl();
   
   // start the SD DAV server
   if(!dav.init(SD_CS, SPI_FULL_SPEED, SERVER_PORT))   {
@@ -80,8 +65,9 @@ void Network::startDAVServer() {
     //blink();
   }
   
-  relenquishBusControl();
+  sdcontrol.relinquishBusControl();
   DBG_PRINTLN("FYSETC WebDAV server started");
+  return 0;
 }
 
 bool Network::isConnected() {
@@ -101,7 +87,7 @@ bool Network::ready() {
 	}
 	
 	// has other master been using the bus in last few seconds
-	if(millis() < _spiBlockoutTime) {
+	if(!sdcontrol.canWeTakeBus()) {
 		dav.rejectClient("Marlin is reading from SD card");
 		return false;
 	}
@@ -111,33 +97,10 @@ bool Network::ready() {
 
 void Network::handle() {
   if(network.ready()) {
-	  takeBusControl();
+	  sdcontrol.takeBusControl();
 	  dav.handleClient();
-	  relenquishBusControl();
+	  sdcontrol.relinquishBusControl();
 	}
 }
-
-// ------------------------
-void Network::takeBusControl()	{
-// ------------------------
-	_weHaveBus = true;
-	//LED_ON;
-	pinMode(MISO_PIN, SPECIAL);	
-	pinMode(MOSI_PIN, SPECIAL);	
-	pinMode(SCLK_PIN, SPECIAL);	
-	pinMode(SD_CS, OUTPUT);
-}
-
-// ------------------------
-void Network::relenquishBusControl()	{
-// ------------------------
-	pinMode(MISO_PIN, INPUT);	
-	pinMode(MOSI_PIN, INPUT);	
-	pinMode(SCLK_PIN, INPUT);	
-	pinMode(SD_CS, INPUT);
-	//LED_OFF;
-	_weHaveBus = false;
-}
-
 
 Network network;
