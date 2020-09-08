@@ -76,13 +76,16 @@ void errorBlink()	{
 void statusBlink() {
   static unsigned long time = 0;
   if(millis() > time + 1000 ) {
-    if(network.isConnected()) {
+    if(network.isConnecting()) {
+      LED_OFF;
+    }
+    else if(network.isConnected()) {
       LED_ON; 
   		delay(50); 
   		LED_OFF; 
     }
     else {
-      LED_OFF; 
+      LED_ON;
     }
     time = millis();
   }

@@ -8,15 +8,17 @@
 
 class Network {
 public:
-  Network() { initFailed = false;}
+  Network() { initFailed = false;wifiConnecting = true;}
   bool start();
   int startDAVServer();
   bool isConnected();
+  bool isConnecting();
   void handle();
   bool ready();
 
 private:
   bool wifiConnected;
+  bool wifiConnecting;
   bool initFailed;
 };
 

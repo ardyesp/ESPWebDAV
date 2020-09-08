@@ -16,6 +16,7 @@ String IpAddress2String(const IPAddress& ipAddress)
 
 bool Network::start() {
   wifiConnected = false;
+  wifiConnecting = true;
   
   // Set hostname first
   WiFi.hostname(HOSTNAME);
@@ -33,6 +34,7 @@ bool Network::start() {
     timeout++;
     if(timeout++ > WIFI_CONNECT_TIMEOUT/100) {
       SERIAL_ECHOLN("");
+      wifiConnecting = false;
       return false;
     }
     else
@@ -54,6 +56,7 @@ bool Network::start() {
 
   SERIAL_ECHOLN("Going to start DAV server");
   if(startDAVServer() < 0) return false;
+  wifiConnecting = false;
 
   return true;
 }
@@ -82,6 +85,10 @@ int Network::startDAVServer() {
 
 bool Network::isConnected() {
   return wifiConnected;
+}
+
+bool Network::isConnecting() {
+  return wifiConnecting;
 }
 
 // a client is waiting and FS is ready and other SPI master is not using the bus
