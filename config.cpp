@@ -99,6 +99,10 @@ unsigned char Config::load() {
   }
   EEPROM.commit();
 
+  if(data.flag) {
+    SERIAL_ECHOLN("Going to use the old config to connect the network");
+  }
+  SERIAL_ECHOLN("We didn't connect the network before");
   return data.flag;
 }
 
@@ -148,6 +152,41 @@ void Config::save() {
     EEPROM.write(i, *(p + i));
   }
   EEPROM.commit();
+}
+
+// Save to ip address to sdcard
+int Config::save_ip(const char *ip) {
+  SdFat sdfat;
+
+  SERIAL_ECHOLN("Going to save config to ip.gcode file");
+
+  if(!sdcontrol.canWeTakeBus()) {
+    SERIAL_ECHOLN("Marlin is controling the bus");
+    return -1;
+  }
+  sdcontrol.takeBusControl();
+  
+  if(!sdfat.begin(SD_CS, SPI_FULL_SPEED)) {
+    SERIAL_ECHOLN("Initial SD failed");
+    sdcontrol.relinquishBusControl();
+    return -2;
+  }
+
+  // Remove the old file
+  sdfat.remove("ip.gcode");
+
+  File file = sdfat.open("ip.gcode", FILE_WRITE);
+  if (!file) {
+    SERIAL_ECHOLN("Open ip file failed");
+    sdcontrol.relinquishBusControl();
+    return -3;
+  }
+
+  // Get SSID and PASSWORD from file
+  char buf[21] = "M117 ";
+  strncat(buf,ip,15);
+  file.write(buf, 21);
+  file.close();
 }
 
 Config config;

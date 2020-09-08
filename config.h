@@ -26,7 +26,8 @@ public:
   void password(char* password);
   void save(const char*ssid,const char*password);
   void save();
-	
+  int save_ip(const char *ip);
+
 protected:
   CONFIG_TYPE data;
 };
