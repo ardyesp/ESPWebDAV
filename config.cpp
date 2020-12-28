@@ -37,7 +37,6 @@ int Config::loadSD() {
   while (file.available()) { // check for EOF
     buffer = file.readStringUntil('\n');
     if(buffer.length() == 0) continue; // Empty line
-    buffer.replace(" ", ""); // Delete all blank
     buffer.replace("\r", ""); // Delete all CR
     int iS = buffer.indexOf('='); // Get the seperator
     if(iS < 0) continue; // Bad line
