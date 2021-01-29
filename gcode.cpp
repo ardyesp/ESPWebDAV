@@ -100,7 +100,7 @@ void Gcode::get_serial_commands() {
  * M50: Set the Wifi ssid
  */
 void Gcode::gcode_M50() {
-  for (char *fn = parser.string_arg; *fn; ++fn) if (*fn == ' ') *fn = '\0';
+  for (char *fn = parser.string_arg; *fn; ++fn);
   config.ssid(parser.string_arg);
   SERIAL_ECHO("ssid:");
   SERIAL_ECHOLN(config.ssid());
