@@ -1,4 +1,5 @@
 # WebDAV Server and a 3D Printer
+
 This project is a WiFi WebDAV server using ESP8266 SoC. It maintains the filesystem on an SD card.
 
 Supports the basic WebDav operations - *PROPFIND*, *GET*, *PUT*, *DELETE*, *MKCOL*, *MOVE* etc.
@@ -11,15 +12,15 @@ I am using this setup as a networked drive for 3D Printer running Marlin. Follow
 
 GCode can be directly uploaded from the slicer (Cura) to this remote drive, thereby simplifying the workflow. 
 
-
 ![Printer Hookup Diagram](PrinterHookup2.jpg)
 
 ## Dependencies:
+
 1. [ESP8266 Arduino Core version 2.4](https://github.com/esp8266/Arduino)
 2. [SdFat library](https://github.com/greiman/SdFat)
 
-
 ## Use:
+
 ### Compile and upload
 
 #### Compile
@@ -27,26 +28,27 @@ GCode can be directly uploaded from the slicer (Cura) to this remote drive, ther
 If you don't want to update the firmware. You don't need to do this. Compile and upload the program to an ESP8266 module. 
 
 - Open the project
-
+  
   Download this project and open it with [arduino](https://www.arduino.cc/) software.
 
 - Add board manager link
-
+  
   Add boards manager link: `https://arduino.esp8266.com/stable/package_esp8266com_index.json` to File->Preferences board manager, Documentation: https://arduino-esp8266.readthedocs.io/en/2.7.1/ 
 
 - Select board
-
+  
   Select Tools->boards->Generic ESP8285 Module.
 
 - Click the Arduino compile button
 
 #### Upload
 
-1. Pulg in the USB cable to your computer.
-2. Press and hold the module FLSH 
-3. Connect the USB cable to the module
-4. Release the module FLSH button
-5. Click the Arduino upload button
+1. Pulg in the USB cable to your computer
+2. Diag the switch on the module to `USB2UART`
+3. Press and hold the module FLSH 
+4. Connect the USB cable to the module
+5. Release the module FLSH button
+6. Click the Arduino upload button
 
 ### Config
 
@@ -82,6 +84,7 @@ And use the following command to connect the network or check the network status
     M51: Set the wifi password , 'M51 password'
     M52: Start to connect the wifi
     M53: Check the connection status
+
 ### Access
 
 #### windows
@@ -95,6 +98,7 @@ Or use Map Network Drive menu in Windows Explorer.
 Just need to use  ```http://192.168.0.x``` in access network drive option
 
 ## References
+
 Marlin Firmware - [http://marlinfw.org/](http://marlinfw.org/)   
 
 Cura Slicer - [https://ultimaker.com/en/products/ultimaker-cura-software](https://ultimaker.com/en/products/ultimaker-cura-software)   
@@ -102,6 +106,3 @@ Cura Slicer - [https://ultimaker.com/en/products/ultimaker-cura-software](https:
 3D Printer LCD and SD Card Interface - [http://reprap.org/wiki/RepRapDiscount_Full_Graphic_Smart_Controller](http://reprap.org/wiki/RepRapDiscount_Full_Graphic_Smart_Controller)   
 
 LCD Schematics - [http://reprap.org/mediawiki/images/7/79/LCD_connect_SCHDOC.pdf](http://reprap.org/mediawiki/images/7/79/LCD_connect_SCHDOC.pdf)   
-
-
-
