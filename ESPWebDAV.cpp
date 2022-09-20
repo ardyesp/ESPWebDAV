@@ -24,7 +24,18 @@ bool ESPWebDAV::init(int chipSelectPin, SPISettings spiSettings, int serverPort)
 	return sd.begin(chipSelectPin, spiSettings);
 }
 
+// ------------------------
+bool ESPWebDAV::initSD(int chipSelectPin, SPISettings spiSettings) {
+	// initialize the SD card
+	return sd.begin(chipSelectPin, spiSettings);
+}
 
+// ------------------------
+bool ESPWebDAV::startServer() {
+// ------------------------
+	// start the wifi server
+	server->begin();
+}
 
 // ------------------------
 void ESPWebDAV::handleNotFound() {
@@ -555,3 +566,4 @@ void ESPWebDAV::handleDelete(ResourceType resource)	{
 	send("200 OK", NULL, "");
 }
 
+ESPWebDAV dav;
